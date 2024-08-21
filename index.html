@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIMS DATABASES</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('lims.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            width: 95%;
+            margin: 40px auto;
+            max-width: 1200px;
+        }
+
+        h2, h3 {
+            text-align: left;
+            color: #333;
+            font-weight: 500;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .input-field, select {
+            width: calc(33.33% - 10px);
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus, select:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        .action-button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .action-button.delete {
+            background-color: #dc3545;
+        }
+
+        .action-button.edit {
+            background-color: #ffc107;
+        }
+
+        .action-button.more-details {
+            background-color: #17a2b8;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .data-table tbody tr:nth-child(odd) {
+            background-color: #e0efff;
+        }
+
+        .notification {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: fadeIn 0.5s ease, fadeOut 0.5s 3.5s ease forwards;
+        }
+
+        .notification button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .notification button.okay {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .notification button.change {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>LIMS DATABASES</h2>
+
+        <div class="section-title">
+            <h3>Enter Case ID</h3>
+        </div>
+        <div>
+            <select id="caseIdInput" onchange="getCaseDetails()">
+                <option value="" disabled selected>Select Case ID</option>
+                <option value="case1">Case 1</option>
+                <option value="case2">Case 2</option>
+                <option value="case3">Case 3</option>
+                <option value="case4">Case 4</option>
+                <option value="case5">Case 5</option>
+                <option value="case6">Case 6</option>
+                <option value="case7">Case 7</option>
+                <option value="case8">Case 8</option>
+                <option value="case9">Case 9</option>
+                <option value="case10">Case 10</option>
+            </select>
+            <input type="text" id="searchInput" class="input-field" placeholder="Search...">
+            <select id="searchType" onchange="updateSearchInput()">
+                <option value="CaseID">Case ID</option>
+                <option value="ClinicName">Clinic Name</option>
+                <option value="Date">Date</option>
+            </select>
+            <button class="action-button" onclick="searchCaseId()">Search</button>
+        </div>
+
+        <div class="section-title">
+            <h3>Case Details</h3>
+        </div>
+        <table class="data-table" id="caseDetailsTable">
+            <thead>
+                <tr>
+                    <th>Case ID</th>
+                    <th>Clinic Name</th>
+                    <th>Date</th>
+                    <th>More Details</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <div class="notification" id="notification">
+            <p id="notificationMessage"></p>
+            <button class="okay" onclick="hideNotification()">OK</button>
+            <button class="change" onclick="changeData()">Change</button>
+        </div>
+    </div>
+
+    <script>
+        const cases = {
+            case1: { ClinicName: "A Clinic", Date: "2024-07-01" },
+            case2: { ClinicName: "B Clinic", Date: "2024-07-15" },
+            case3: { ClinicName: "C Clinic", Date: "2024-07-22" },
+            case4: { ClinicName: "D Clinic", Date: "2024-08-05" },
+            case5: { ClinicName: "E Clinic", Date: "2024-08-10" },
+            case6: { ClinicName: "F Clinic", Date: "2024-08-12" },
+            case7: { ClinicName: "G Clinic", Date: "2024-08-18" },
+            case8: { ClinicName: "H Clinic", Date: "2024-08-19" },
+            case9: { ClinicName: "I Clinic", Date: "2024-08-20" },
+            case10: { ClinicName: "J Clinic", Date: "2024-08-21" }
+        };
+
+        function getCaseDetails() {
+            const caseId = document.getElementById('caseIdInput').value;
+            fetchCaseDetails(caseId, 'CaseID');
+        }
+
+        function searchCaseId() {
+            const searchInput = document.getElementById('searchInput').value;
+            const searchType = document.getElementById('searchType').value;
+            fetchCaseDetails(searchInput, searchType);
+        }
+
+        function fetchCaseDetails(searchInput, searchType) {
+            const formattedInput = searchInput.toLowerCase().trim();
+            let filteredCases = [];
+
+            Object.keys(cases).forEach(caseKey => {
+                const caseData = cases[caseKey];
+
+                if (searchType === 'CaseID' && caseKey.toLowerCase().includes(formattedInput)) {
+                    filteredCases.push({ CaseID: caseKey, ...caseData });
+                } else if (searchType === 'ClinicName' && caseData.ClinicName.toLowerCase().includes(formattedInput)) {
+                    filteredCases.push({ CaseID: caseKey, ...caseData });
+                } else if (searchType === 'Date' && caseData.Date === formattedInput) {
+                    filteredCases.push({ CaseID: caseKey, ...caseData });
+                }
+            });
+
+            displayCaseDetails(filteredCases);
+        }
+
+        function displayCaseDetails(filteredCases) {
+            const tableBody = document.getElementById('caseDetailsTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+
+            if (filteredCases.length > 0) {
+                filteredCases.forEach(caseData => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${caseData.CaseID}</td>
+                        <td>${caseData.ClinicName}</td>
+                        <td>${caseData.Date}</td>
+                        <td><button class="action-button more-details" onclick="viewMoreDetails('${caseData.CaseID}')">More Details</button></td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            } else {
+                const noResultRow = document.createElement('tr');
+                noResultRow.innerHTML = `<td colspan="4" style="text-align:center;">No matching cases found</td>`;
+                tableBody.appendChild(noResultRow);
+            }
+        }
+
+        function updateSearchInput() {
+            document.getElementById('searchInput').value = '';
+        }
+
+        function viewMoreDetails(caseId) {
+           
+            window.location.href = `new.html?caseId=${caseId}`;
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const messageElem = document.getElementById('notificationMessage');
+            messageElem.textContent = message;
+            notification.style.display = 'block';
+        }
+
+        function hideNotification() {
+            document.getElementById('notification').style.display = 'none';
+        }
+
+        function changeData() {
+            hideNotification();
+            document.getElementById('searchInput').value = '';
+        }
+    </script>
+</body>
+</html>
